@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:width="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>register</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link href="https://getbootstrap.com/docs/4.0/examples/signin/signin.css" rel="stylesheet" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container">
+        <div class="form-signin">
+            <h2 class="form-signin-heading">用户注册</h2>
+            <p>
+                <input type="text" id="user_name" class="form-control" placeholder="Username 1-10位" required="" autofocus="">
+            </p>
+            <p>
+                <input type="password" id="user_password" class="form-control" placeholder="Password 6-16位" required="">
+            </p>
+            <button id="register" class="btn btn-lg btn-primary btn-block">注册</button>
+        </div>
+    </div>
+
+    <script>
+        var register = document.getElementById("register");
+        register.onclick = function() {
+            console.log("ok");
+            $.ajax({
+                url: "register2",
+                data: JSON.stringify(document.getElementById("user_name").value),
+                type: "POST",
+                contentType: "application/json;charset=utf-8",
+                success: function (data) {
+                    console.log("ok2");
+                    var index = JSON.parse(data)[0]["index"];
+                    if(document.getElementById("user_name").value == null) {
+                        alert("用户名不允许为空!");
+                    }else if(document.getElementById("user_name").value > 10) {
+                        alter("用户名超出长度限制!");
+                    }else if(index == "no") {
+                        alert("用户名重复!");
+                        document.getElementById("user_name").value = null;
+                        document.getElementById("user_password").value = null;
+                    }else if(document.getElementById("user_password").value.length < 6 || document.getElementById("user_password").value.length > 16) {
+                        alert("密码格式不符合要求!");
+                        document.getElementById("user_password").value = null
+                    }else{
+                        alert("注册成功!");
+                        $.ajax({
+                            url: "register3",
+                            type: "get",
+                            data: {
+                                "user_name": document.getElementById("user_name").value,
+                                "password": document.getElementById("user_password").value
+                            },
+                            contentType: "application/json;charset=utf-8",
+                            success: function (data) {
+                                window.location.href = "mainPage";
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                // 状态码
+                                console.log(XMLHttpRequest.status);
+                                // 状态
+                                console.log(XMLHttpRequest.readyState);
+                                // 错误信息
+                                console.log(textStatus);
+                            }
+                        });
+                    };
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    // 状态码
+                    console.log(XMLHttpRequest.status);
+                    // 状态
+                    console.log(XMLHttpRequest.readyState);
+                    // 错误信息
+                    console.log(textStatus);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

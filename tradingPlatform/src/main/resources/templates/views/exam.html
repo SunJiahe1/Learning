@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Exam</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+</head>
+<body>
+    <div class="main_body">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <p style="display: inline-block;font-size: 20px;margin: 0 0 0 0;">用户:</p>
+                <p id="user_name" style="display: inline-block;font-size: 20px;margin: 0 0 0 0;"></p>
+                <p style="display: inline-block;font-size: 20px;margin: 0 0 0 0;">余额:</p>
+                <p id="balance" style="display: inline-block;font-size: 20px;margin: 0 0 0 0;"></p>
+                <p style="display: inline-block;font-size: 20px;margin: 0 0 0 0;">剩余做题次数:</p>
+                <p id="number_of_times" style="display: inline-block;font-size: 20px;margin: 0 0 0 0;"></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="multiple_choice" style="margin: 0 auto; width: 30%;">
+
+        题目: <span id="multiple_choice_id">: </span><span id="multiple_choice_title"></span>
+        <br>
+        选项A: <span id="multiple_choice_option_a"></span>
+        <br>
+        选项B: <span id="multiple_choice_option_b"></span>
+        <br>
+        选项C: <span id="multiple_choice_option_c"></span>
+        <br>
+        选项D: <span id="multiple_choice_option_d"></span>
+        <br>
+        <span id="multiple_choice_answer">请选择正确答案:</span>
+        <input type="radio" value="A" name="choose" class="multiple_choice_choose" /> A <input type="radio" value="B" name="choose" class="multiple_choice_choose" /> B
+        <input type="radio" value="C" name="choose" class="multiple_choice_choose" /> C <input type="radio" value="D" name="choose" class="multiple_choice_choose" /> D
+        <br />
+        <button id="multiple_choice_submit" class="btn-group" style="margin: 0 auto;">提交答案</button>
+    </div>
+
+    <script language="JavaScript">
+        $(document).ready(function() {
+            $.ajax({
+                url: "getUserName",
+                type: "POST",
+                data: JSON.stringify("getUserName"),
+                contentType: "application/json;charset=utf-8",
+                success: function (data) {
+                    var user_name = document.getElementById("user_name");
+                    user_name.innerHTML = JSON.parse(data)[0]["user_name"];
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    // 状态码
+                    console.log(XMLHttpRequest.status);
+                    // 状态
+                    console.log(XMLHttpRequest.readyState);
+                    // 错误信息
+                    console.log(textStatus);
+                }
+            });
+            $.ajax({
+                url: "getBalance",
+                type: "POST",
+                data: JSON.stringify("getBalance"),
+                contentType: "application/json;charset=utf-8",
+                success: function (data) {
+                    var balance = document.getElementById("balance");
+                    balance.innerHTML = JSON.parse(data)[0]["balance"];
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    // 状态码
+                    console.log(XMLHttpRequest.status);
+                    // 状态
+                    console.log(XMLHttpRequest.readyState);
+                    // 错误信息
+                    console.log(textStatus);
+                }
+            });
+            $.ajax({
+                url: "getNumberOfTimes",
+                type: "POST",
+                data: JSON.stringify("getNumberOfTimes"),
+                contentType: "application/json;charset=utf-8",
+                success: function (data) {
+                    var number_of_times = document.getElementById("number_of_times");
+                    number_of_times.innerHTML = JSON.parse(data)[0]["number_of_times"];
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    // 状态码
+                    console.log(XMLHttpRequest.status);
+                    // 状态
+                    console.log(XMLHttpRequest.readyState);
+                    // 错误信息
+                    console.log(textStatus);
+                }
+            });
+            $.ajax({
+                url: "getMultipleChoices",
+                type: "POST",
+                data: JSON.stringify("getMultipleChoices"),
+                contentType: "application/json;charset=utf-8",
+                success: function (data) {
+                    var multiple_choice_id = document.getElementById("multiple_choice_id");
+                    var multiple_choice_title = document.getElementById("multiple_choice_title");
+                    var multiple_choice_option_a = document.getElementById("multiple_choice_option_a");
+                    var multiple_choice_option_b = document.getElementById("multiple_choice_option_b");
+                    var multiple_choice_option_c = document.getElementById("multiple_choice_option_c");
+                    var multiple_choice_option_d = document.getElementById("multiple_choice_option_d");
+                    multiple_choice_id.innerText = JSON.parse(data)[0]["multiple_choice_id"];
+                    multiple_choice_title.innerText = JSON.parse(data)[0]["multiple_choice_title"];
+                    multiple_choice_option_a.innerText = JSON.parse(data)[0]["multiple_choice_option_a"];
+                    multiple_choice_option_b.innerText = JSON.parse(data)[0]["multiple_choice_option_b"];
+                    multiple_choice_option_c.innerText = JSON.parse(data)[0]["multiple_choice_option_c"];
+                    multiple_choice_option_d.innerText = JSON.parse(data)[0]["multiple_choice_option_d"];
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    // 状态码
+                    console.log(XMLHttpRequest.status);
+                    // 状态
+                    console.log(XMLHttpRequest.readyState);
+                    // 错误信息
+                    console.log(textStatus);
+                }
+            });
+        })
+    </script>
+
+    <script>
+        var multiple_choice_submit = document.getElementById("multiple_choice_submit");
+        multiple_choice_submit.onclick = function() {
+            var multiple_choice_choose = document.getElementsByClassName("multiple_choice_choose");
+            var choose = "F";
+            for(var i=0;i<multiple_choice_choose.length;i++) {
+                if(multiple_choice_choose[i].checked) {
+                    choose = multiple_choice_choose[i].value;
+                };
+            }
+            if(choose == "F") {
+                alert("未选择答案!");
+            }else {
+                $.ajax({
+                    url: "getMultipleChoiceAnswer",
+                    type: "GET",
+                    data: {
+                        "multiple_choice_id": Number(document.getElementById("multiple_choice_id").innerText),
+                        "choose": choose
+                    },
+                    contentType: "application/json;charset=utf-8",
+                    success: function (data) {
+                        if(JSON.parse(data)[0]["index"] == "ok") {
+                            alert("恭喜你，做对了!");
+                            window.location.reload(true);
+                        }else {
+                            alert("很遗憾，做错了!");
+                            window.location.reload(true);
+                        };
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        // 状态码
+                        console.log(XMLHttpRequest.status);
+                        // 状态
+                        console.log(XMLHttpRequest.readyState);
+                        // 错误信息
+                        console.log(textStatus);
+                    }
+                });
+            };
+        }
+    </script>
+</body>
+</html>

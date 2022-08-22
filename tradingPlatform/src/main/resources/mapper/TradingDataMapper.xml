@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybaits.org//DTD Mapper 3.0//EN"
+        "http://mybaits.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.tradingPlatform.dao.TradingDataMapper">
+    <select id="getAdministratorsList" resultType="com.example.tradingPlatform.pojo.Administrator">
+        select * from administrator;
+    </select>
+    <select id="userList" resultType="com.example.tradingPlatform.pojo.User">
+        select * from user;
+    </select>
+    <select id="getUser" parameterType="String" resultType="com.example.tradingPlatform.pojo.User">
+        select * from user where user_name = #{user_name};
+    </select>
+    <select id="getUserId" parameterType="String" resultType="Integer">
+        select id from user where user_name = #{user_name};
+    </select>
+    <select id="getUserMaxId" resultType="Integer">
+        select max(id) from user;
+    </select>
+    <select id="getUserName" parameterType="Integer" resultType="String">
+        select user_name from user where id = #{id};
+    </select>
+    <select id="getPassword" parameterType="String" resultType="String">
+        select password from user where user_name = #{user_name};
+    </select>
+    <select id="getBalance" parameterType="String" resultType="Integer">
+        select balance from user where user_name = #{user_name};
+    </select>
+    <select id="getPurchases" parameterType="Integer" resultType="com.example.tradingPlatform.pojo.Purchase">
+        select * from purchase where id = #{id};
+    </select>
+    <select id="getPurchase" parameterType="map" resultType="com.example.tradingPlatform.pojo.Purchase">
+        select * from purchase where id = #{id} and p_name = #{p_name};
+    </select>
+    <select id="getSells" parameterType="Integer" resultType="com.example.tradingPlatform.pojo.Sell">
+        select * from sell where id = #{id};
+    </select>
+    <select id="getSell" parameterType="map" resultType="com.example.tradingPlatform.pojo.Sell">
+        select * from sell where s_name = #{s_name} and id = #{id};
+    </select>
+    <insert id="addPurchase" parameterType="com.example.tradingPlatform.pojo.Purchase">
+        insert into purchase (id,p_name,p_price,p_amount,p_date) values(#{id},#{p_name},#{p_price},#{p_amount},#{p_date});
+    </insert>
+    <delete id="deletePurchase" parameterType="map">
+        delete from purchase where p_name = #{p_name} and id = #{id};
+    </delete>
+    <delete id="deleteSell" parameterType="map">
+        delete from sell where s_name = #{s_name} and id = #{id};
+    </delete>
+    <insert id="addSell" parameterType="com.example.tradingPlatform.pojo.Sell">
+        insert into sell (id,s_name,s_price,s_amount,s_date) values(#{id},#{s_name},#{s_price},#{s_amount},#{s_date});
+    </insert>
+    <insert id="addUser" parameterType="com.example.tradingPlatform.pojo.User">
+        insert into user (id,user_name,password,balance) values(#{id},#{user_name},#{password},#{balance});
+    </insert>
+    <update id="updateUser" parameterType="map">
+        update `user`
+        <set>
+            <if test="user_name != null">
+                `user_name` = #{user_name},
+            </if>
+            <if test="password != null">
+                `password` = #{password},
+            </if>
+            <if test="balance != null">
+                `balance` = #{balance}
+            </if>
+        </set>
+            where `id` = #{id}
+    </update>
+    <update id="updatePurchase" parameterType="map">
+        update purchase
+        <set>
+            <if test="p_price != null">
+                p_price = #{p_price},
+            </if>
+            <if test="p_amount != null">
+                p_amount = #{p_amount},
+            </if>
+            <if test="p_data != null">
+                p_date = #{p_date}
+            </if>
+        </set>
+        where id = #{id} and p_name = #{p_name}
+    </update>
+    <update id="updateSell" parameterType="map">
+        update sell
+        <set>
+            <if test="s_price != null">
+                s_price = #{s_price},
+            </if>
+            <if test="s_amount != null">
+                s_amount = #{s_amount},
+            </if>
+            <if test="s_data != null">
+                s_date = #{s_date}
+            </if>
+        </set>
+        where id = #{id} and s_name = #{s_name}
+    </update>
+    <select id="getAllSell" resultType="com.example.tradingPlatform.pojo.Sell">
+        select * from sell;
+    </select>
+    <select id="getOfficialMarketList" resultType="com.example.tradingPlatform.pojo.OfficialMarket">
+        select * from official_market;
+    </select>
+    <select id="getOfficialMarket" parameterType="String" resultType="com.example.tradingPlatform.pojo.OfficialMarket">
+        select * from official_market where ticket_name = #{ticket_name};
+    </select>
+    <insert id="addOfficialMarket" parameterType="com.example.tradingPlatform.pojo.OfficialMarket">
+        insert into official_market (ticket_name,ticket_price,ticket_amount,seller) values(#{ticket_name},#{ticket_price},#{ticket_amount},#{seller});
+    </insert>
+    <delete id="deleteOfficialMarket" parameterType="String">
+        delete from official_market where ticket_name=#{ticket_name};
+    </delete>
+    <update id="updateOfficialMarket" parameterType="map">
+        update official_market
+        <set>
+            <if test="ticket_price != null">
+                ticket_price = #{ticket_price},
+            </if>
+            <if test="ticket_amount != null">
+                ticket_amount = #{ticket_amount}
+            </if>
+        </set>
+        where ticket_name = #{ticket_name}
+    </update>
+    <insert id="addExam" parameterType="com.example.tradingPlatform.pojo.MultipleChoice">
+        insert into multiple_choice (id,title,option_a,option_b,option_c,option_d,answer) values(#{id},#{title},#{option_a},#{option_b},#{option_c},#{option_d},#{answer});
+    </insert>
+    <select id="getAnswerTimes" parameterType="Integer" resultType="com.example.tradingPlatform.pojo.AnswerTimes">
+        select * from answer_times where id = #{id};
+    </select>
+    <select id="getMultipleChoice" parameterType="Integer" resultType="com.example.tradingPlatform.pojo.MultipleChoice">
+        select * from multiple_choice where id = #{id};
+    </select>
+    <select id="getMultipleChoices" resultType="com.example.tradingPlatform.pojo.MultipleChoice">
+        select * from multiple_choice;
+    </select>
+    <update id="updateAnswerTimes" parameterType="map">
+        update answer_times
+        <set>
+            <if test="number_of_times != null">
+                number_of_times = #{number_of_times}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+</mapper>

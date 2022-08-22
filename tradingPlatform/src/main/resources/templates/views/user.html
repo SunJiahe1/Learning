@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:width="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>User</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/user.css">
+</head>
+<body>
+    <div class="main_body">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <p style="display: inline-block;font-size: 20px;margin: 0 0 0 0;">用户:</p>
+                <p id="user_name" style="display: inline-block;font-size: 20px;margin: 0 0 0 0;"></p>
+                <p style="display: inline-block;font-size: 20px;margin: 0 0 0 0;">余额:</p>
+                <p id="balance" style="display: inline-block;font-size: 20px;margin: 0 0 0 0;"></p>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <p style="display: inline-block;font-size: 15px;margin: 0 0 0 0;">已选中: </p>
+                <p id="pick_name" style="display: inline-block;font-size: 15px;margin: 0 0 0 0;">无 </p>
+                <p style="display: inline-block;font-size: 15px;margin: 0 0 0 0;">id: </p>
+                <p id="pick_id" style="display: inline-block;font-size: 15px;margin: 0 0 0 0;">空</p>
+            </div>
+        </div>
+        <h2 class="label label-primary">用户仓库</h2>
+        <table id="purchases" class="table">
+
+        </table>
+        <h2 class="label label-primary">用户待售</h2>
+        <table id="sells" class="table">
+
+        </table>
+    </div>
+
+    <div id="img_modal">
+        <div id="img_modal-content">
+            <span id="img_close">&times;</span>
+            <br />
+            <br />
+            <div id="img_container">
+                <img id="img" src="" width="500px">
+            </div>
+        </div>
+    </div>
+
+    <div id="modal">
+        <div id="modal-content">
+            <span id="close">&times;</span>
+            <br />
+            <br />
+            <div class="input-group">
+                <span class="input-group-addon">票券价格</span>
+                <input id="ticket_price" type="text" class="form-control" placeholder="TicketPrice" aria-describedby="basic-addon1">
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon">票券数量</span>
+                <input id="ticket_amount" type="text" class="form-control" placeholder="TicketAmount" aria-describedby="basic-addon1">
+            </div>
+            <br />
+            <div style="text-align:right;">
+                <button id="submit" class="btn-group" style="margin: 0 auto;" onclick="submit()">上架票券</button>
+            </div>
+        </div>
+    </div>
+
+    <script language="JavaScript">
+        $(document).ready(function() {
+            $.ajax({
+                url: "getUserName",
+                type: "POST",
+                data: JSON.stringify("getUserName"),
+                contentType: "application/json;charset=utf-8",
+                success: function (data) {
+                    var user_name = document.getElementById("user_name");
+                    user_name.innerHTML = JSON.parse(data)[0]["user_name"];
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    // 状态码
+                    console.log(XMLHttpRequest.status);
+                    // 状态
+                    console.log(XMLHttpRequest.readyState);
+                    // 错误信息
+                    console.log(textStatus);
+                }
+            });
+            $.ajax({
+                url: "getBalance",
+                type: "POST",
+                data: JSON.stringify("getBalance"),
+                contentType: "application/json;charset=utf-8",
+                success: function (data) {
+                    var balance = document.getElementById("balance");
+                    balance.innerHTML = JSON.parse(data)[0]["balance"];
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    // 状态码
+                    console.log(XMLHttpRequest.status);
+                    // 状态
+                    console.log(XMLHttpRequest.readyState);
+                    // 错误信息
+                    console.log(textStatus);
+                }
+            });
+            $.ajax({
+                url: "getPurchases",
+                type: "POST",
+                data: JSON.stringify("getPurchases"),
+                contentType: "application/json;charset=utf-8",
+                success: function (data) {
+                    var purchases = document.getElementById("purchases");
+                    if(JSON.parse(data)[0]["p_name"] == "无") {
+                        purchases.innerHTML = "<tr>"
+                            + "<th>暂无入库记录</th>"
+                        + "</tr>"
+                    }else {
+                        purchases.innerHTML += "<tr>"
+                            + "<th>票券名</th>"
+                            + "<th>入库价格</th>"
+                            + "<th>入库数量</th>"
+                            + "<th>入库时间</th>"
+                            + "<th></th>"
+                        + "</tr>"
+                        var p_name = [];
+                        p_name.push(JSON.parse(data)[0]["p_name"]);
+                        var p_price = [];
+                        p_price.push(JSON.parse(data)[0]["p_price"]);
+                        var p_amount = [];
+                        p_amount.push(JSON.parse(data)[0]["p_amount"]);
+                        var p_date = [];
+                        p_date.push(JSON.parse(data)[0]["p_date"]);
+                        if(JSON.parse(data)[0]["length"] == 1) {
+                            var i = 0;
+                            purchases.innerHTML += "<tr>"
+                                + "<td width='20%' id='om" + i + "1'>" + p_name[0] + "</td>"
+                                + "<td width='20%' id='om" + i + "2'>" + p_price[0] + "</td>"
+                                + "<td width='20%' id='om" + i + "3'>" + p_amount[0] + "</td>"
+                                + "<td width='20%' id='om" + i + "4'>" + p_date[0] + "</td>"
+                                + "<td width='20%'>" + "<button id='addMarket" + i + "' class='btn btn-default' onclick='addMarket(" + i + ")'>上架</button><button id='see" + i + "' class='btn btn-default'>查看</button>" + "</td>"
+                            + "</tr>"
+                        }else {
+                            for(var i=0;i<p_name[0].length;i++) {
+                                purchases.innerHTML += "<tr>"
+                                    + "<td width='20%' id='om" + i + "1'>" + p_name[0][i] + "</td>"
+                                    + "<td width='20%' id='om" + i + "2'>" + p_price[0][i] + "</td>"
+                                    + "<td width='20%' id='om" + i + "3'>" + p_amount[0][i] + "</td>"
+                                    + "<td width='20%' id='om" + i + "4'>" + p_date[0][i] + "</td>"
+                                    + "<td width='20%'>" + "<button id='addMarket" + i + "' class='btn btn-default' onclick='addMarket(" + i + ")'>上架</button><button id='see" + i + "' class='btn btn-default'>查看</button>" + "</td>"
+                                + "</tr>"
+                            }
+                        };
+                    };
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    // 状态码
+                    console.log(XMLHttpRequest.status);
+                    // 状态
+                    console.log(XMLHttpRequest.readyState);
+                    // 错误信息
+                    console.log(textStatus);
+                }
+            });
+            $.ajax({
+                url: "getSells",
+                type: "POST",
+                data: JSON.stringify("getSells"),
+                contentType: "application/json;charset=utf-8",
+                success: function (data) {
+                    var sells = document.getElementById("sells");
+                    if(JSON.parse(data)[0]["s_name"] == "无") {
+                        sells.innerHTML = "<tr>"
+                            + "<th>暂无待售记录</th>"
+                        + "</tr>"
+                    }else {
+                        sells.innerHTML += "<tr>"
+                            + "<th>票券名</th>"
+                            + "<th>待售价格</th>"
+                            + "<th>待售</th>"
+                            + "<th>上架时间</th>"
+                            + "<th></th>"
+                        + "</tr>"
+                        var s_name = [];
+                        s_name.push(JSON.parse(data)[0]["s_name"]);
+                        var s_price = [];
+                        s_price.push(JSON.parse(data)[0]["s_price"]);
+                        var s_amount = [];
+                        s_amount.push(JSON.parse(data)[0]["s_amount"]);
+                        var s_date = [];
+                        s_date.push(JSON.parse(data)[0]["s_date"]);
+                        if(JSON.parse(data)[0]["length"] == 1) {
+                            var i = 0;
+                            sells.innerHTML += "<tr>"
+                                + "<td width='20%' id='m" + i + "1'>" + s_name[0] + "</td>"
+                                + "<td width='20%' id='m" + i + "2'>" + s_price[0] + "</td>"
+                                + "<td width='20%'  id='m" + i + "3'>" + s_amount[0] + "</td>"
+                                + "<td width='20%' id='m" + i + "4'>" + s_date[0] + "</td>"
+                                + "<td width='20%'>" + "<button id='drop" + i + "' class='btn btn-default'>下架</button><button id='see2" + i + "' class='btn btn-default'>查看</button>" + "</td>"
+                            + "</tr>"
+                        }else {
+                            for(var i=0;i<s_name[0].length;i++) {
+                                sells.innerHTML += "<tr>"
+                                    + "<td width='20%' id='m" + i + "1'>" + s_name[0][i] + "</td>"
+                                    + "<td width='20%' id='m" + i + "2'>" + s_price[0][i] + "</td>"
+                                    + "<td width='20%'  id='m" + i + "3'>" + s_amount[0][i] + "</td>"
+                                    + "<td width='20%' id='m" + i + "4'>" + s_date[0][i] + "</td>"
+                                    + "<td width='20%'>" + "<button id='drop" + i + "' class='btn btn-default'>下架</button><button id='see2" + i + "' class='btn btn-default'>查看</button>" + "</td>"
+                                + "</tr>"
+                            }
+                        };
+                    };
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    // 状态码
+                    console.log(XMLHttpRequest.status);
+                    // 状态
+                    console.log(XMLHttpRequest.readyState);
+                    // 错误信息
+                    console.log(textStatus);
+                }
+            });
+        })
+    </script>
+
+    <script>
+        document.getElementById("close").onclick = function() {
+            document.getElementById("pick_name").innerText = "无";
+            document.getElementById("pick_id").innerText = "空";
+            modal.style.display = "none";
+        };
+        window.onclick = function(event){
+            if(event.target == modal){
+                modal.style.display = "none";
+            }
+        };
+    </script>
+
+    <script>
+        var modal = document.getElementById("modal");
+        function addMarket(i) {
+            modal.style.display = "block";
+            var name_id = "om" + i + "1";
+            var price_id = "om" + i + "2";
+            var amount_id = "om" + i + "3";
+            var seller_id = "om" + i + "4";
+            document.getElementById("pick_name").innerText = document.getElementById(name_id).innerText;
+            document.getElementById("pick_name").innerText = name_id;
+        }
+        function submit() {
+            var pick_name = document.getElementById("pick_name").innerText;
+            var name_id = "om" + pick_name.charAt(2) + "1";
+            var price_id = "om" + pick_name.charAt(2) + "2";
+            var amount_id = "om" + pick_name.charAt(2) + "3";
+            var seller_id = "om" + pick_name.charAt(2) + "4";
+            if(document.getElementById("ticket_amount").value <= 0) {
+                alert("上架数量不能小于等于0!");
+                document.getElementById("ticket_amount").value = null;
+            }else if(document.getElementById("ticket_amount").value > Number(document.getElementById(amount_id).innerText)) {
+                alert("上架数量超出最大数量!");
+                document.getElementById("ticket_amount").value = null;
+            }else {
+                $.ajax({
+                    url: "addMarket",
+                    type: "GET",
+                    data: {
+                        "ticket_name": document.getElementById(name_id).innerText,
+                        "ticket_price": document.getElementById("ticket_price").value,
+                        "ticket_amount": document.getElementById("ticket_amount").value,
+                        "seller": document.getElementById("user_name").innerText
+                    },
+                    contentType: "application/json;charset=utf-8",
+                    success: function (data) {
+                        if(JSON.parse(data)[0]["index"] == "ok") {
+                            alert("票券上架成功!");
+                            modal.style.display = "none";
+                            window.location.reload(true);
+                        }else {
+                            alert("票券上架失败!");
+                            document.getElementById("ticket_price").value = null;
+                            document.getElementById("ticket_amount").value = null;
+                        };
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        // 状态码
+                        console.log(XMLHttpRequest.status);
+                        // 状态
+                        console.log(XMLHttpRequest.readyState);
+                        // 错误信息
+                        console.log(textStatus);
+                    }
+                });
+            };
+        }
+    </script>
+</body>
+<script src="js/common.js"></script>
+</html>

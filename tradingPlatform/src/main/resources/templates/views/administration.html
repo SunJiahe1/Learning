@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:width="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Administration</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <link rel="stylesheet" href="css/administration.css">
+    <link rel="stylesheet" href="css/common.css">
+</head>
+<body>
+    <div class="main_body">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <p id="ad_name" style="display: inline-block;font-size: 20px;margin: 0 0 0 0;"></p>
+                <div style="display: inline-block;float: right;text-align: right;">
+                    <button id="addOfficialMarket" class="btn-group" style="display: inline-block;margin: 0 0 0 0;">上架票券</button>
+                    <button id="addExam" class="btn-group" style="display: inline-block;margin: 0 0 0 0;"onclick="addExam()">上传题目</button>
+                </div>
+            </div>
+        </div>
+        <h2 class="label label-primary">官方市场</h2>
+        <table id="official_market" class="table">
+
+        </table>
+        <h2 class="label label-primary">用户二级市场</h2>
+        <table id="market" class="table">
+
+        </table>
+    </div>
+
+    <div id="modal">
+        <div id="modal-content">
+            <span id="close">&times;</span>
+            <br />
+            <br />
+            <div class="input-group">
+                <span class="input-group-addon">票券名称</span>
+                <input id="ticket_name" type="text" class="form-control" placeholder="TicketName" aria-describedby="basic-addon1">
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon">票券价格</span>
+                <input id="ticket_price" type="text" class="form-control" placeholder="TicketPrice" aria-describedby="basic-addon1">
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon">票券数量</span>
+                <input id="ticket_amount" type="text" class="form-control" placeholder="TicketAmount" aria-describedby="basic-addon1">
+            </div>
+            <div class="input-group">
+                <form action="/img" method="post" enctype="multipart/form-data">
+                    <input id="ticket_image" type="file" name="photo" style="display: inline-block;">
+                    <p style="display: inline-block;width: 155px"></p>
+                    <input type="submit" value="提交" style="display: inline-block;">
+                </form>
+            </div>
+            <br />
+            <div style="text-align:right;">
+                <button id="submit" class="btn-group" style="margin: 0 auto;">上架票券</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal2">
+        <div id="modal-content2">
+            <span id="close2">&times;</span>
+            <br />
+            <br />
+            <div class="input-group">
+                <span class="input-group-addon">题目编号</span>
+                <input id="multiple_choice_id" type="text" class="form-control" placeholder="multiple_choice_id" aria-describedby="basic-addon1">
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon">题目</span>
+                <input id="multiple_choice_title" type="text" class="form-control" placeholder="multiple_choice_title" aria-describedby="basic-addon1">
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon">选项A</span>
+                <input id="multiple_choice_option_a" type="text" class="form-control" placeholder="multiple_choice_option_a" aria-describedby="basic-addon1">
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon">选项B</span>
+                <input id="multiple_choice_option_b" type="text" class="form-control" placeholder="multiple_choice_option_b" aria-describedby="basic-addon1">
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon">选项C</span>
+                <input id="multiple_choice_option_c" type="text" class="form-control" placeholder="multiple_choice_option_c" aria-describedby="basic-addon1">
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon">选项D</span>
+                <input id="multiple_choice_option_d" type="text" class="form-control" placeholder="multiple_choice_option_d" aria-describedby="basic-addon1">
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon">正确答案</span>
+                <input id="multiple_choice_answer" type="text" class="form-control" placeholder="multiple_choice_answer" aria-describedby="basic-addon1">
+            </div>
+            <br />
+            <div style="text-align:right;">
+                <button id="multiple_choice_submit" class="btn-group" style="margin: 0 auto;" onclick="multiple_choice_submit()">上传题目</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="img_modal">
+        <div id="img_modal-content">
+            <span id="img_close">&times;</span>
+            <br />
+            <br />
+            <div id="img_container">
+                <img id="img" src="" width="500px">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $.ajax({
+                url: "getAdName",
+                type: "POST",
+                data: JSON.stringify("getAdName"),
+                contentType: "application/json;charset=utf-8",
+                success: function (data) {
+                    var ad_name = document.getElementById("ad_name");
+                    ad_name.innerHTML = "管理员: " + JSON.parse(data)[0]["ad_name"];
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    // 状态码
+                    console.log(XMLHttpRequest.status);
+                    // 状态
+                    console.log(XMLHttpRequest.readyState);
+                    // 错误信息
+                    console.log(textStatus);
+                }
+            });
+            $.ajax({
+                url: "getOfficialMarketList",
+                type: "POST",
+                data: JSON.stringify("getOfficialMarketList"),
+                contentType: "application/json;charset=utf-8",
+                success: function (data) {
+                    var official_market = document.getElementById("official_market");
+                    if(JSON.parse(data)[0]["ticket_name"] == "无") {
+                        official_market.innerHTML = "<tr>"
+                            + "<th>暂无商品出售</th>"
+                        + "</tr>"
+                    }else {
+                        official_market.innerHTML += "<tr>"
+                            + "<th>票券名</th>"
+                            + "<th>票券价格</th>"
+                            + "<th>剩余数量</th>"
+                            + "<th>出售人</th>"
+                            + "<th></th>"
+                        + "</tr>"
+                        var ticket_name = [];
+                        ticket_name.push(JSON.parse(data)[0]["ticket_name"]);
+                        var ticket_price = [];
+                        ticket_price.push(JSON.parse(data)[0]["ticket_price"]);
+                        var ticket_amount = [];
+                        ticket_amount.push(JSON.parse(data)[0]["ticket_amount"]);
+                        var seller = [];
+                        seller.push(JSON.parse(data)[0]["seller"]);
+                        if(JSON.parse(data)[0]["length"] == 1) {
+                            var i = 0;
+                            official_market.innerHTML += "<tr>"
+                                + "<td width='20%' id='om" + i + "1'>" + ticket_name[0] + "</td>"
+                                + "<td width='20%' id='om" + i + "2'>" + ticket_price[0] + "</td>"
+                                + "<td width='20%' id='om" + i + "3'>" + ticket_amount[0] + "</td>"
+                                + "<td width='20%' id='om" + i + "4'>" + seller[0] + "</td>"
+                                + "<td width='20%'>" + "<button id='o_drop" + i + "' class='btn btn-default'>下架</button><button id='see" + i + "' class='btn btn-default'>查看</button>" + "</td>"
+                            + "</tr>"
+                        }else {
+                            for(var i=0;i<ticket_name[0].length;i++) {
+                                official_market.innerHTML += "<tr>"
+                                    + "<td width='20%' id='om" + i + "1'>" + ticket_name[0][i] + "</td>"
+                                    + "<td width='20%' id='om" + i + "2'>" + ticket_price[0][i] + "</td>"
+                                    + "<td width='20%'  id='om" + i + "3'>" + ticket_amount[0][i] + "</td>"
+                                    + "<td width='20%' id='om" + i + "4'>" + seller[0][i] + "</td>"
+                                    + "<td width='20%'>" + "<button id='o_drop" + i + "' class='btn btn-default'>下架</button><button id='see" + i + "' class='btn btn-default'>查看</button>" + "</td>"
+                                + "</tr>"
+                            }
+                        };
+                    };
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    // 状态码
+                    console.log(XMLHttpRequest.status);
+                    // 状态
+                    console.log(XMLHttpRequest.readyState);
+                    // 错误信息
+                    console.log(textStatus);
+                }
+            });
+            $.ajax({
+                url: "getMarketList",
+                type: "POST",
+                data: JSON.stringify("getMarketList"),
+                contentType: "application/json;charset=utf-8",
+                success: function (data) {
+                    var market = document.getElementById("market");
+                    if(JSON.parse(data)[0]["ticket_name"] == "无") {
+                        market.innerHTML = "<tr>"
+                            + "<th>暂无商品出售</th>"
+                        + "</tr>"
+                    }else {
+                        market.innerHTML += "<tr>"
+                            + "<th>票券名</th>"
+                            + "<th>票券价格</th>"
+                            + "<th>剩余数量</th>"
+                            + "<th>出售人</th>"
+                            + "<th></th>"
+                        + "</tr>"
+                        var ticket_name = [];
+                        ticket_name.push(JSON.parse(data)[0]["ticket_name"]);
+                        var ticket_price = [];
+                        ticket_price.push(JSON.parse(data)[0]["ticket_price"]);
+                        var ticket_amount = [];
+                        ticket_amount.push(JSON.parse(data)[0]["ticket_amount"]);
+                        var seller = [];
+                        seller.push(JSON.parse(data)[0]["seller"]);
+                        if(JSON.parse(data)[0]["length"] == 1) {
+                            var i = 0;
+                            market.innerHTML += "<tr>"
+                                + "<td width='20%' id='m" + i + "1'>" + ticket_name[0] + "</td>"
+                                + "<td width='20%' id='m" + i + "2'>" + ticket_price[0] + "</td>"
+                                + "<td width='20%'  id='m" + i + "3'>" + ticket_amount[0] + "</td>"
+                                + "<td width='20%' id='m" + i + "4'>" + seller[0] + "</td>"
+                                + "<td width='20%'>" + "<button id='see2" + i + "' class='btn btn-default'>查看</button>" + "</td>"
+                            + "</tr>"
+                        }else {
+                            for(var i=0;i<ticket_name[0].length;i++) {
+                                market.innerHTML += "<tr>"
+                                    + "<td width='20%' id='m" + i + "1'>" + ticket_name[0][i] + "</td>"
+                                    + "<td width='20%' id='m" + i + "2'>" + ticket_price[0][i] + "</td>"
+                                    + "<td width='20%'  id='m" + i + "3'>" + ticket_amount[0][i] + "</td>"
+                                    + "<td width='20%' id='m" + i + "4'>" + seller[0][i] + "</td>"
+                                    + "<td width='20%'>" + "<button id='see2" + i + "' class='btn btn-default'>查看</button>" + "</td>"
+                                + "</tr>"
+                            }
+                        };
+                    };
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    // 状态码
+                    console.log(XMLHttpRequest.status);
+                    // 状态
+                    console.log(XMLHttpRequest.readyState);
+                    // 错误信息
+                    console.log(textStatus);
+                }
+            });
+        })
+    </script>
+
+    <script>
+        var button = document.getElementById("addOfficialMarket");
+        var modal = document.getElementById("modal");
+        button.onclick = function() {
+            modal.style.display = "block";
+        };
+        document.getElementById("close").onclick = function() {
+            modal.style.display = "none";
+        };
+        window.onclick = function(event){
+            if(event.target == modal){
+                modal.style.display = "none"
+            }
+        };
+    </script>
+
+    <script>
+        var button2 = document.getElementById("addExam");
+        var modal2 = document.getElementById("modal2");
+        button2.onclick = function() {
+            modal2.style.display = "block";
+        };
+        document.getElementById("close2").onclick = function() {
+            modal2.style.display = "none";
+        };
+        window.onclick = function(event){
+            if(event.target == modal2){
+                modal2.style.display = "none"
+            }
+        };
+    </script>
+
+    <script>
+        var submit = document.getElementById("submit");
+        var modal = document.getElementById("modal");
+        submit.onclick = function() {
+            $.ajax({
+                url: "addOfficialMarket",
+                type: "GET",
+                data: {
+                    "ticket_name": document.getElementById("ticket_name").value,
+                    "ticket_price": document.getElementById("ticket_price").value,
+                    "ticket_amount": document.getElementById("ticket_amount").value,
+                    "seller": "官方"
+                },
+                contentType: "application/json;charset=utf-8",
+                success: function (data) {
+                    if(JSON.parse(data)[0]["index"] == "ok") {
+                        alert("票券上架成功!");
+                        modal.style.display = "none";
+                        window.location.reload(true);
+                    }else {
+                        alert("票券上架失败!");
+                        document.getElementById("ticket_name").value = null;
+                        document.getElementById("ticket_price").value = null;
+                        document.getElementById("ticket_amount").value = null;
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    // 状态码
+                    console.log(XMLHttpRequest.status);
+                    // 状态
+                    console.log(XMLHttpRequest.readyState);
+                    // 错误信息
+                    console.log(textStatus);
+                }
+            });
+        };
+    </script>
+
+    <script>
+        var modal2 = document.getElementById("modal2");
+        function multiple_choice_submit() {
+            $.ajax({
+                url: "addExam",
+                type: "GET",
+                data: {
+                    "multiple_choice_id": document.getElementById("multiple_choice_id").value,
+                    "multiple_choice_title": document.getElementById("multiple_choice_title").value,
+                    "multiple_choice_option_a": document.getElementById("multiple_choice_option_a").value,
+                    "multiple_choice_option_b": document.getElementById("multiple_choice_option_b").value,
+                    "multiple_choice_option_c": document.getElementById("multiple_choice_option_c").value,
+                    "multiple_choice_option_d": document.getElementById("multiple_choice_option_d").value,
+                    "multiple_choice_answer": document.getElementById("multiple_choice_answer").value
+                },
+                contentType: "application/json;charset=utf-8",
+                success: function (data) {
+                    if(JSON.parse(data)[0]["index"] == "ok") {
+                        alert("上传题目成功!");
+                        modal2.style.display = "none";
+                        window.location.reload(true);
+                    }else {
+                        alert("上传题目失败!");
+<!--                        document.getElementById("multiple_choice_title").value = null;-->
+<!--                        document.getElementById("multiple_choice_option_a").value = null;-->
+<!--                        document.getElementById("multiple_choice_option_b").value = null;-->
+<!--                        document.getElementById("multiple_choice_option_c").value = null;-->
+<!--                        document.getElementById("multiple_choice_option_d").value = null;-->
+<!--                        document.getElementById("multiple_choice_answer").value = null;-->
+                    };
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    // 状态码
+                    console.log(XMLHttpRequest.status);
+                    // 状态
+                    console.log(XMLHttpRequest.readyState);
+                    // 错误信息
+                    console.log(textStatus);
+                }
+            });
+        };
+    </script>
+</body>
+<script src="js/common.js"></script>
+</html>
